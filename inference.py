@@ -26,7 +26,7 @@ except ImportError:
 # Constants
 CLASSES = ['NonFight', 'Fight']  # 0: NonFight, 1: Fight
 
-def load_video(video_path, num_segments=8):
+def load_video(video_path, num_segments=12):
     """
     Load and preprocess a video for the model.
     Samples 'num_segments' frames uniformly.
@@ -158,7 +158,7 @@ if __name__ == "__main__":
                         help="Path to mmaction2 TSN config configuration file")
     parser.add_argument('--yolo_weights', type=str, default="yolov8n.pt",
                         help="Path to YOLO weights")
-    parser.add_argument('--num_segments', type=int, default=8, help="Number of frames to sample")
+    parser.add_argument('--num_segments', type=int, default=12, help="Number of frames to sample")
     parser.add_argument('--device', type=str, default='cuda', help="Device to use (cuda/cpu)")
     
     args = parser.parse_args()

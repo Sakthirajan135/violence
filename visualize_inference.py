@@ -147,7 +147,7 @@ if __name__ == "__main__":
     parser.add_argument('--mmaction_cfg', type=str,
                         default="./mmaction2/configs/recognition/tsn/tsn_imagenet-pretrained-r50_8xb32-1x1x3-100e_kinetics400-rgb.py")
     parser.add_argument('--yolo_weights', type=str, default="yolov8n.pt")
-    parser.add_argument('--num_segments', type=int, default=8)
+    parser.add_argument('--num_segments', type=int, default=12)
     parser.add_argument('--device', type=str, default='cuda')
     
     args = parser.parse_args()

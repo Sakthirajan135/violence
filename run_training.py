@@ -55,7 +55,7 @@ class RWF2000Dataset(Dataset):
             self,
             root_dir,
             mode='train',
-            num_segments=8,
+            num_segments=12,
             transform=None,
             random_seed=42
     ):
@@ -173,6 +173,7 @@ class YOLOEncoder(nn.Module):
         self.mlp = nn.Sequential(
             nn.Linear(4, 128),
             nn.ReLU(),
+            nn.Dropout(0.3),
             nn.Linear(128, 128)
         )
 
@@ -257,6 +258,7 @@ class TSNWithYOLO(nn.Module):
         in_features = original_fc.in_features
         out_features = original_fc.out_features
 
+        self.dropout = nn.Dropout(0.5)
         self.fusion_fc = nn.Linear(in_features + yolo_encoding_dim, out_features)
 
         with torch.no_grad():
@@ -275,6 +277,7 @@ class TSNWithYOLO(nn.Module):
 
         yolo_feat = yolo_encodings.mean(dim=1)
         fused_feat = torch.cat([tsn_feat, yolo_feat], dim=1)
+        fused_feat = self.dropout(fused_feat)
         logits = self.fusion_fc(fused_feat)
         return logits
 
@@ -291,11 +294,14 @@ def train(args):
     device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
-    # Data transforms
+    # Data transforms (stronger augmentation to reduce overfitting)
     train_transform = T.Compose([
         T.ToPILImage(),
         T.RandomHorizontalFlip(p=0.5),
-        T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1),
+        T.RandomRotation(degrees=10),
+        T.RandomResizedCrop(224, scale=(0.8, 1.0)),
+        T.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.15),
+        T.RandomGrayscale(p=0.1),
         T.ToTensor()
     ])
     val_transform = T.Compose([
@@ -472,7 +478,7 @@ if __name__ == "__main__":
     # Training hyperparameters
     parser.add_argument('--epochs', type=int, default=10, help="Number of epochs")
     parser.add_argument('--batch_size', type=int, default=2, help="Batch size")
-    parser.add_argument('--num_segments', type=int, default=8, help="Number of frame segments")
+    parser.add_argument('--num_segments', type=int, default=12, help="Number of frame segments")
     parser.add_argument('--lr', type=float, default=1e-3, help="Learning rate")
     parser.add_argument('--weight_decay', type=float, default=1e-5, help="Weight decay")
 
