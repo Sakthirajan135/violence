@@ -18,3 +18,4 @@ importlib_metadata~=8.6.1
 einops~=0.8.0
 packaging~=24.2
 setuptools~=60.2.0
+streamlit>=1.28.0
